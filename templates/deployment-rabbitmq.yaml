@@ -1,0 +1,53 @@
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: rabbitmq
+  namespace: {{.Values.namespace}}
+  labels:
+    app: rabbitmq
+spec:
+  selector:
+    matchLabels:
+      app: rabbitmq
+  replicas: 1
+  strategy:
+    type: Recreate
+  template:
+    metadata:
+      labels:
+        app: rabbitmq
+    spec:
+      volumes:
+        - name: rabbitmq-storage
+          persistentVolumeClaim:
+            claimName: minio-pvc
+      affinity:
+        nodeAffinity:
+          requiredDuringSchedulingIgnoredDuringExecution:
+            nodeSelectorTerms:
+            - matchExpressions:
+              - key: node-role.kubernetes.io/{{ .Values.node_role }}
+                operator: Exists
+      tolerations:
+        - key: {{ .Values.node_tolerations }}
+          operator: "Exists"
+          effect: "NoSchedule"
+      containers:
+      - name: rabbitmq
+        image: rabbitmq:latest
+        env:
+        - name: RABBITMQ_DEFAULT_USER
+          value: "{{ .Values.rabbitmq_default_user }}"
+        - name: RABBITMQ_DEFAULT_PASS
+          valueFrom:
+            secretKeyRef:
+                name: secret-rabbitmq
+                key: rabbitmq_default_pass
+        ports:
+          - name: rabbitmq-web
+            protocol: TCP
+            containerPort: 15672
+          name: rabbitmq
+        volumeMounts:
+        - name: rabbitmq-storage
+          mountPath: "/var/lib/rabbitmq"

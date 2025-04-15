@@ -3,10 +3,12 @@ storage:
   class_name: longhorn-hdd
   size: 10Gi
 minio_root_user: <root user login for minio>
+rabbitmq_default_user: admin
 node_role: test
 node_tolerations: test
 secrets:
-  minio_root_password: <minio root password>
+  minio_root_password: <minio_root_password>
+  rabbitmq_default_pass: <rabbitmq_default_pass>
 ingress:
   api: <url api>
   web: <url web>

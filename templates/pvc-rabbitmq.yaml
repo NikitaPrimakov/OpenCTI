@@ -1,0 +1,15 @@
+apiVersion: v1
+kind: PersistentVolumeClaim
+metadata:
+  name: rabbitmq-storage
+  namespace: {{ .Values.namespace }}
+  labels:
+    app: rabbitmq
+spec:
+  resources:
+    requests:
+      storage: {{ .Values.storage.size }}
+  storageClassName: {{ .Values.storage.class_name }}
+  volumeMode: Filesystem
+  accessModes:
+    - ReadWriteOnce
