@@ -1,0 +1,12 @@
+namespace: opencti
+storage:
+  class_name: longhorn-hdd
+  size: 10Gi
+minio_root_user: <root user login for minio>
+node_role: test
+node_tolerations: test
+secrets:
+  minio_root_password: <minio root password>
+ingress:
+  api: <url api>
+  web: <url web>

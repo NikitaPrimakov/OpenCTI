@@ -1,0 +1,57 @@
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: minio-deployment
+  namespace: {{ .Values.namespace }}
+spec:
+  selector:
+    matchLabels:
+      app: minio
+  replicas: 1
+  strategy:
+    type: Recreate 
+  template:
+    metadata:
+      labels:
+        app: minio
+    spec:
+      volumes:
+        - name: minio-storage
+          persistentVolumeClaim:
+            claimName: minio-pvc
+      affinity:
+        nodeAffinity:
+          requiredDuringSchedulingIgnoredDuringExecution:
+            nodeSelectorTerms:
+            - matchExpressions:
+              - key: node-role.kubernetes.io/{{ .Values.node_role }}
+                operator: Exists
+      tolerations:
+        - key: {{ .Values.node_tolerations }}
+          operator: "Exists"
+          effect: "NoSchedule"
+      containers:
+        - name: minio
+          image: docker-base.loodsen.ru/loodsen-base/minio:master
+          args:
+            - /storage
+            - --console-address
+            - :9001
+          env:
+            - name: MINIO_ROOT_USER
+              value: "{{ .Values.minio_root_user }}"
+            - name: MINIO_ROOT_PASSWORD
+              valueFrom:
+                secretKeyRef:
+                    name: secret
+                    key: minio_root_password
+          ports:
+            - name: minio-api
+              protocol: TCP
+              containerPort: 9000
+            - name: minio-web
+              protocol: TCP
+              containerPort: 9001
+          volumeMounts:
+            - name: minio-storage
+              mountPath: "/storage"
