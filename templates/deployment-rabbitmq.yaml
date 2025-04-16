@@ -34,7 +34,7 @@ spec:
           effect: "NoSchedule"
       containers:
       - name: rabbitmq
-        image: rabbitmq:latest
+        image: rabbitmq:management
         env:
         - name: RABBITMQ_DEFAULT_USER
           value: "{{ .Values.rabbitmq_default_user }}"
@@ -47,7 +47,9 @@ spec:
           - name: rabbitmq-web
             protocol: TCP
             containerPort: 15672
-          name: rabbitmq
+          - name: rabbitmq-api
+            protocol: TCP
+            containerPort: 5672
         volumeMounts:
         - name: rabbitmq-storage
           mountPath: "/var/lib/rabbitmq"
