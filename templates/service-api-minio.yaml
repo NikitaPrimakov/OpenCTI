@@ -4,10 +4,10 @@ metadata:
   name: minio-api
   namespace: {{ .Values.namespace }}
   labels:
-    app: minio
+    app: minio-cluster
 spec:
   selector:
-    app: minio
+    app: minio-cluster
   ports:
   - name: minio-api
     port: 9000

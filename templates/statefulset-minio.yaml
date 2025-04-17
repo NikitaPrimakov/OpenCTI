@@ -1,0 +1,52 @@
+apiVersion: apps/v1
+kind: StatefulSet
+metadata:
+  name: minio-cluster
+  namespace: opencti
+spec:
+  selector:
+    matchLabels:
+      app: minio-cluster
+  replicas: 4
+  template:
+    metadata:
+      labels:
+        app: minio-cluster
+    spec:
+      containers:
+        - name: minio-cluster
+          image: minio/minio
+          args:
+            - server
+            - /storage
+            - --console-address
+            - :9001
+          env:
+            - name: MINIO_ROOT_USER
+              value: "admin"
+            - name: MINIO_ROOT_PASSWORD
+              valueFrom:
+                secretKeyRef:
+                    name: secret
+                    key: minio_root_password
+          ports:
+            - name: minio-api
+              protocol: TCP
+              containerPort: 9000
+            - name: minio-web
+              protocol: TCP
+              containerPort: 9001
+          volumeMounts:
+            - name: minio-storage
+              mountPath: "/storage"
+  volumeClaimTemplates:
+  - metadata:
+      name: minio-storage
+      namespace: opencti
+    spec:
+      accessModes:
+        - ReadWriteOnce
+      storageClassName: longhorn-hdd
+      resources:
+        requests:
+          storage: 5Gi
