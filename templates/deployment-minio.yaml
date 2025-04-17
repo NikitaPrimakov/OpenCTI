@@ -32,8 +32,9 @@ spec:
           effect: "NoSchedule"
       containers:
         - name: minio
-          image: docker-base.loodsen.ru/loodsen-base/minio:master
+          image: minio/minio
           args:
+            - server
             - /storage
             - --console-address
             - :9001
