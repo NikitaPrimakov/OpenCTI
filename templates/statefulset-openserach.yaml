@@ -1,0 +1,66 @@
+apiVersion: apps/v1
+kind: StatefulSet
+metadata:
+  name: opensearch
+  namespace: opencti
+  labels:
+    app: opensearch
+spec:
+  selector:
+    matchLabels:
+      app: opensearch
+  replicas: 1
+  template:
+    metadata:
+      labels:
+        app: opensearch
+    spec:
+      securityContext:
+        fsGroup: 1000
+      initContainers:
+      - name: fix-permissions
+        image: busybox
+        securityContext:
+          runAsUser: 0
+        command:
+          - chown
+          - -R
+          - 1000:1000
+          - /usr/share/opensearch/data
+        volumeMounts:
+        - name: opensearch-storage
+          mountPath: "/usr/share/opensearch/data"
+      containers:
+      - name: opensearch
+        image: opensearchproject/opensearch:2.11.1
+        env:
+        - name: discovery.type
+          value: single-node
+        ports:
+        - name: opensearch-web
+          protocol: TCP
+          containerPort: 9200
+        - name: analyzer
+          protocol: TCP
+          containerPort: 9600
+        volumeMounts:
+        - name: opensearch-storage
+          mountPath: "/usr/share/opensearch/data"
+        - name: config
+          mountPath: "/usr/share/opensearch/config/opensearch.yml"
+          subPath: opensearch.yml
+      volumes:
+      - name: config
+        configMap:
+          name: opensearch-config
+  volumeClaimTemplates:
+  - metadata:
+      name: opensearch-storage
+      namespace: opencti
+    spec:
+      accessModes:
+        - ReadWriteOnce
+      storageClassName: longhorn-hdd
+      resources:
+        requests:
+          storage: 10Gi

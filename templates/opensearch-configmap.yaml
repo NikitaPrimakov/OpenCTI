@@ -1,0 +1,12 @@
+apiVersion: v1
+kind: ConfigMap
+metadata:
+  name: opensearch-config
+  namespace: opencti
+data:
+  opensearch.yml: |
+    cluster.name: docker-cluster
+    network.host: 0.0.0.0
+    discovery.type: single-node
+    plugins.security.disabled: true
+    node.max_local_storage_nodes: 3
