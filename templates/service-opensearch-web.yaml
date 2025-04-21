@@ -1,16 +1,16 @@
 apiVersion: v1
 kind: Service
 metadata:
-  name: opensearch-web
+  name: web
   namespace: opencti
   labels:
-    app: opensearch
+    app: opensearch-cluster
 spec:
   selector:
-    app: opensearch
+    app: opensearch-cluster
   type: NodePort
   ports:
-  - name: opensearch-web
+  - name: web
     protocol: TCP
     port: 9200
     targetPort: 9200

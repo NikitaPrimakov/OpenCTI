@@ -4,10 +4,10 @@ metadata:
   name: analyzer
   namespace: opencti
   labels:
-    app: opensearch
+    app: opensearch-cluster
 spec:
   selector:
-    app: opensearch
+    app: opensearch-cluster
   type: NodePort
   ports:
   - name: analyzer
