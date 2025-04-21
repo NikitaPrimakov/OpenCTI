@@ -1,19 +1,19 @@
 apiVersion: apps/v1
 kind: StatefulSet
 metadata:
-  name: opensearch
+  name: opensearch-cluster
   namespace: opencti
   labels:
-    app: opensearch
+    app: opensearch-cluster
 spec:
   selector:
     matchLabels:
-      app: opensearch
-  replicas: 1
+      app: opensearch-cluster
+  replicas: 2
   template:
     metadata:
       labels:
-        app: opensearch
+        app: opensearch-cluster
     spec:
       securityContext:
         fsGroup: 1000
@@ -37,7 +37,7 @@ spec:
         - name: discovery.type
           value: single-node
         ports:
-        - name: opensearch-web
+        - name: web
           protocol: TCP
           containerPort: 9200
         - name: analyzer

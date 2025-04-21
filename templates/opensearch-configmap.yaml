@@ -5,8 +5,15 @@ metadata:
   namespace: opencti
 data:
   opensearch.yml: |
-    cluster.name: docker-cluster
+    cluster.name: opensearch-cluster
     network.host: 0.0.0.0
-    discovery.type: single-node
+    discovery.type: false
     plugins.security.disabled: true
-    node.max_local_storage_nodes: 3
+    discovery.seed_hosts: ["opensearch-0.opensearch-headless.opencti.svc.cluster.local", "opensearch-1.opensearch-headless.opencti.svc.cluster.local"]
+    node.name: ${HOSTNAME}
+    node.roles: [cluster_manager, data]
+    cluster.initial_cluster_manager_nodes: ["opensearch-cluster-0", "opensearch-cluster-1"]
+    http.port: 9200
+    transport.port: 9300
+    path.data: /usr/share/opensearch/data
+    path.logs: /usr/share/opensearch/logs

@@ -1,26 +1,20 @@
 apiVersion: apps/v1
-kind: Deployment
+kind: StatefulSet
 metadata:
-  name: rabbitmq
+  name: rabbitmq-cluster
   namespace: {{.Values.namespace}}
   labels:
-    app: rabbitmq
+    app: rabbitmq-cluster
 spec:
   selector:
     matchLabels:
-      app: rabbitmq
-  replicas: 1
-  strategy:
-    type: Recreate
+      app: rabbitmq-cluster
+  replicas: 3
   template:
     metadata:
       labels:
-        app: rabbitmq
+        app: rabbitmq-cluster
     spec:
-      volumes:
-        - name: rabbitmq-storage
-          persistentVolumeClaim:
-            claimName: minio-pvc
       affinity:
         nodeAffinity:
           requiredDuringSchedulingIgnoredDuringExecution:
@@ -33,9 +27,11 @@ spec:
           operator: "Exists"
           effect: "NoSchedule"
       containers:
-      - name: rabbitmq
+      - name: rabbitmq-cluster
         image: rabbitmq:management
         env:
+        - name: RABBITMQ_ENABLE_QUORUM_QUEUES
+          value: "true"  # Включаем Quorum Queues
         - name: RABBITMQ_DEFAULT_USER
           value: "{{ .Values.rabbitmq_default_user }}"
         - name: RABBITMQ_DEFAULT_PASS
@@ -53,3 +49,14 @@ spec:
         volumeMounts:
         - name: rabbitmq-storage
           mountPath: "/var/lib/rabbitmq"
+  volumeClaimTemplates:
+  - metadata:
+      name: rabbitmq-storage
+      namespace: opencti
+    spec:
+      accessModes:
+        - ReadWriteOnce
+      storageClassName: longhorn-hdd
+      resources:
+        requests:
+          storage: 5Gi
