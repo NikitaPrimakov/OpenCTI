@@ -1,0 +1,13 @@
+apiVersion: v1
+kind: Service
+metadata:
+  name: opensearch-dashboards
+  namespace: opencti
+spec:
+  type: NodePort  # Или LoadBalancer для production
+  ports:
+  - port: 5601
+    targetPort: 5601
+    nodePort: 30601  # Опционально - для NodePort
+  selector:
+    app: opensearch-dashboards
